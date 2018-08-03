@@ -3,7 +3,7 @@ from datetime import datetime as dt
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Count, Value, CharField
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
 from rest_framework import views, viewsets, generics, permissions, authentication, status
@@ -1310,7 +1310,6 @@ class EventSummaryViewSet(ReadOnlyHistoryViewSet):
 class EventDetailViewSet(ReadOnlyHistoryViewSet):
     permission_classes = (DRYPermissions,)
     # queryset = Event.objects.all()
-    # serializer_class
 
     # override the default renderers to use a csv or xslx renderer when requested
     def get_renderers(self):
@@ -1359,7 +1358,39 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                 if obj is not None and (user == obj.created_by or user.organization == obj.created_by.organization
                                         or user in circle_read or user in circle_write
                                         or user.is_superuser or user.role.is_superadmin or user.role.is_admin):
-                    return queryset
+                    frmt = self.request.query_params.get('format', None)
+                    if frmt in ['csv', 'xlsx']:
+                        val = Value('', output_field=CharField())
+                        # if the event has no event_locations, just return the event itself
+                        if obj.eventlocations is None:
+                            return queryset.annotate(
+                                location_id=val, location_priority=val, county=val, state=val, nation=val,
+                                location_start=val, location_end=val, location_species_id=val, species_priority=val,
+                                species_name=val, population=val, sick=val, dead=val, estimated_sick=val,
+                                estimated_dead=val, captive=val, age_bias=val, sex_bias=val, species_diagnosis_id=val,
+                                species_diagnosis_priority=val, speciesdx=val, causal=val, number_tested=val,
+                                number_positive=val).values('event_id', 'event_reference', 'event_type', 'complete', 'organization', 'start_date', 'end_date', 'affected_count', 'event_diagnosis', 'location_id', 'location_priority', 'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested', 'number_positive')
+                        # otherwise build a union-ed, denormalized matrix
+                        # get all specdiag
+                        queryset1 = SpeciesDiagnosis.objects.filter(location_species__event_location__event=obj.id).values('event_id', 'event_reference', 'event_type', 'complete', 'organization', 'start_date', 'end_date', 'affected_count', 'event_diagnosis', 'location_id', 'location_priority', 'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested', 'number_positive')
+                        # get all locspec with no specdiag
+                        queryset2 = LocationSpecies.objects.annotate(
+                            specdiag_count=Count('speciesdiagnoses'), species_diagnosis_id=val,
+                            species_diagnosis_priority=val, speciesdx=val, causal=val, number_tested=val,
+                            number_positive=val).filter(
+                            event_location__event=obj.id, specdiag_count=0).values('event_id', 'event_reference', 'event_type', 'complete', 'organization', 'start_date', 'end_date', 'affected_count', 'event_diagnosis', 'location_id', 'location_priority', 'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested', 'number_positive')
+                        # get all evtloc with no locspec
+                        queryset3 = EventLocation.objects.annotate(
+                            locspec_count=Count('locationspecies'), location_species_id=val, species_priority=val,
+                            species_name=val, population=val, sick=val, dead=val, estimated_sick=val,
+                            estimated_dead=val, captive=val, age_bias=val, sex_bias=val, species_diagnosis_id=val,
+                            species_diagnosis_priority=val, speciesdx=val, causal=val, number_tested=val,
+                            number_positive=val).filter(
+                            event=obj.id, locspec_count=0).values('event_id', 'event_reference', 'event_type', 'complete', 'organization', 'start_date', 'end_date', 'affected_count', 'event_diagnosis', 'location_id', 'location_priority', 'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested', 'number_positive')
+                        queryset = queryset1.union(queryset2, queryset3)
+                        return queryset
+                    else:
+                        return queryset
             return queryset.filter(public=True)
         # all list requests must only return public data
         else:
@@ -1378,6 +1409,9 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                 if obj is not None:
                     circle_read = obj.circle_read if obj.circle_read is not None else []
                     circle_write = obj.circle_write if obj.circle_write is not None else []
+                    frmt = self.request.query_params.get('format', None)
+                    if frmt in ['csv', 'xlsx']:
+                        return FlatEventDetailSerializer
                     # admins have full access to all fields
                     if user.is_superuser or user.role.is_superadmin or user.role.is_admin:
                         return EventDetailAdminSerializer
