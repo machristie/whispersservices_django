@@ -1732,71 +1732,108 @@ class FlatSpeciesDiagnosisSerializer(serializers.ModelSerializer):
 class FlatEventDetailSerializer(serializers.Serializer):
     # a flattened (not nested) version of the essential fields of the FullResultSerializer, to populate CSV files
     # requested from the EventDetails Search
-    event_id = serializers.CharField()
-    event_reference = serializers.CharField()
-    event_type = serializers.CharField()
-    complete = serializers.CharField()
-    organization = serializers.CharField()
-    start_date = serializers.CharField()
-    end_date = serializers.CharField()
-    affected_count = serializers.CharField()
-    event_diagnosis = serializers.CharField()
-    location_id = serializers.CharField()
-    location_priority = serializers.CharField()
-    county = serializers.CharField()
-    state = serializers.CharField()
-    nation = serializers.CharField()
-    location_start = serializers.CharField()
-    location_end = serializers.CharField()
-    location_species_id = serializers.CharField()
-    species_priority = serializers.CharField()
-    species_name = serializers.CharField()
-    population = serializers.CharField()
-    sick = serializers.CharField()
-    dead = serializers.CharField()
-    estimated_sick = serializers.CharField()
-    estimated_dead = serializers.CharField()
-    captive = serializers.CharField()
-    age_bias = serializers.CharField()
-    sex_bias = serializers.CharField()
-    species_diagnosis_id = serializers.CharField()
-    species_diagnosis_priority = serializers.CharField()
-    speciesdx = serializers.CharField()
-    causal = serializers.CharField()
-    number_tested = serializers.CharField()
-    number_positive = serializers.CharField()
 
-    # event_id = serializers.IntegerField()
+    # def get_organizations(self, obj):
+    #     unique_organization_ids = []
+    #     unique_organizations = ''
+    #     organizations = obj.organizations.values()
+    #     if organizations is not None:
+    #         for organization in organizations:
+    #             org = Organization.objects.filter(id=organization['id']).first()
+    #             if org is not None:
+    #                 if org.id not in unique_organization_ids:
+    #                     unique_organization_ids.append(org.id)
+    #                     unique_organizations += '; ' + org.name if unique_organizations else org.name
+    #     return unique_organizations
+    #
+    # def get_event_diagnosis(self, obj):
+    #     unique_event_diagnoses_ids = []
+    #     unique_event_diagnoses = ''
+    #     event_diagnoses = obj.eventdiagnoses.values()
+    #     if event_diagnoses is not None:
+    #         for event_diagnosis in event_diagnoses:
+    #             evtdiag = EventDiagnosis.objects.filter(id=event_diagnosis['id']).first()
+    #             if evtdiag is not None:
+    #                 if evtdiag.id not in unique_event_diagnoses_ids:
+    #                     unique_event_diagnoses_ids.append(evtdiag.id)
+    #                     unique_event_diagnoses += '; ' + evtdiag.name if unique_event_diagnoses else evtdiag.name
+    #     return unique_event_diagnoses
+
+    # event_id = serializers.CharField()
     # event_reference = serializers.CharField()
     # event_type = serializers.CharField()
     # complete = serializers.CharField()
-    # organization = serializers.CharField()
-    # start_date = serializers.DateField()
-    # end_date = serializers.DateField()
-    # affected_count = serializers.IntegerField()
-    # event_diagnosis = serializers.CharField()
-    # location_id = serializers.IntegerField()
-    # location_priority = serializers.IntegerField()
+    # # organization = serializers.SerializerMethodField()
+    # event_start_date = serializers.CharField()
+    # event_end_date = serializers.CharField()
+    # affected_count = serializers.CharField()
+    # # event_diagnosis = serializers.SerializerMethodField()
+    # location_id = serializers.CharField()
+    # location_priority = serializers.CharField()
     # county = serializers.CharField()
     # state = serializers.CharField()
     # nation = serializers.CharField()
-    # location_start = serializers.DateField()
-    # location_end = serializers.DateField()
-    # location_species_id = serializers.IntegerField()
-    # species_priority = serializers.IntegerField()
+    # location_start = serializers.CharField()
+    # location_end = serializers.CharField()
+    # location_species_id = serializers.CharField()
+    # species_priority = serializers.CharField()
     # species_name = serializers.CharField()
-    # population = serializers.IntegerField()
-    # sick = serializers.IntegerField()
-    # dead = serializers.IntegerField()
-    # estimated_sick = serializers.IntegerField()
-    # estimated_dead = serializers.IntegerField()
+    # population = serializers.CharField()
+    # sick = serializers.CharField()
+    # dead = serializers.CharField()
+    # estimated_sick = serializers.CharField()
+    # estimated_dead = serializers.CharField()
     # captive = serializers.CharField()
     # age_bias = serializers.CharField()
     # sex_bias = serializers.CharField()
-    # species_diagnosis_id = serializers.IntegerField()
-    # species_diagnosis_priority = serializers.IntegerField()
+    # species_diagnosis_id = serializers.CharField()
+    # species_diagnosis_priority = serializers.CharField()
     # speciesdx = serializers.CharField()
     # causal = serializers.CharField()
-    # # confirmed = serializers.BooleanField(source='confirmed', read_only=True)
-    # number_tested = serializers.IntegerField()
-    # number_positive = serializers.IntegerField()
+    # number_tested = serializers.CharField()
+    # number_positive = serializers.CharField()
+
+    event_id = serializers.IntegerField()
+    event_reference = serializers.CharField()
+    event_type = serializers.CharField()
+    complete = serializers.CharField()
+    # organization = serializers.CharField()
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    affected_count = serializers.IntegerField()
+    # event_diagnosis = serializers.CharField()
+    location_id = serializers.IntegerField()
+    location_priority = serializers.IntegerField()
+    county = serializers.CharField()
+    state = serializers.CharField()
+    nation = serializers.CharField()
+    location_start = serializers.DateField()
+    location_end = serializers.DateField()
+    location_species_id = serializers.IntegerField()
+    species_priority = serializers.IntegerField()
+    species_name = serializers.CharField()
+    population = serializers.IntegerField()
+    sick = serializers.IntegerField()
+    dead = serializers.IntegerField()
+    estimated_sick = serializers.IntegerField()
+    estimated_dead = serializers.IntegerField()
+    captive = serializers.CharField()
+    age_bias = serializers.CharField()
+    sex_bias = serializers.CharField()
+    species_diagnosis_id = serializers.IntegerField()
+    species_diagnosis_priority = serializers.IntegerField()
+    speciesdx = serializers.CharField()
+    causal = serializers.CharField()
+    # confirmed = serializers.BooleanField(source='confirmed', read_only=True)
+    number_tested = serializers.IntegerField()
+    number_positive = serializers.IntegerField()
+
+    class Meta:
+        model = Event
+        fields = (
+        'event_id', 'event_reference', 'event_type', 'complete', 'event_start_date', 'event_end_date',
+        'affected_count', 'location_id', 'location_priority', 'county', 'state', 'nation',
+        'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name',
+        'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias',
+        'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'confirmed',
+        'number_tested', 'number_positive')
