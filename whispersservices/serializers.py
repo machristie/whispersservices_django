@@ -1795,11 +1795,11 @@ class FlatEventDetailSerializer(serializers.Serializer):
 
     event_id = serializers.IntegerField()
     event_reference = serializers.CharField()
-    event_type = serializers.CharField()
+    event_type = serializers.CharField(source='event_type_name')
     complete = serializers.CharField()
     # organization = serializers.CharField()
-    start_date = serializers.DateField()
-    end_date = serializers.DateField()
+    start_date = serializers.DateField(source='event_start_date')
+    end_date = serializers.DateField(source='event_end_date')
     affected_count = serializers.IntegerField()
     # event_diagnosis = serializers.CharField()
     location_id = serializers.IntegerField()
@@ -1823,17 +1823,17 @@ class FlatEventDetailSerializer(serializers.Serializer):
     species_diagnosis_id = serializers.IntegerField()
     species_diagnosis_priority = serializers.IntegerField()
     speciesdx = serializers.CharField()
-    causal = serializers.CharField()
+    causal = serializers.CharField(source='cause_name')
     # confirmed = serializers.BooleanField(source='confirmed', read_only=True)
     number_tested = serializers.IntegerField()
     number_positive = serializers.IntegerField()
 
-    class Meta:
-        model = Event
-        fields = (
-        'event_id', 'event_reference', 'event_type', 'complete', 'event_start_date', 'event_end_date',
-        'affected_count', 'location_id', 'location_priority', 'county', 'state', 'nation',
-        'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name',
-        'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias',
-        'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'confirmed',
-        'number_tested', 'number_positive')
+    # class Meta:
+    #     model = Event
+    #     fields = (
+    #     'event_id', 'event_reference', 'event_type', 'complete', 'event_start_date', 'event_end_date',
+    #     'affected_count', 'location_id', 'location_priority', 'county', 'state', 'nation',
+    #     'location_start', 'location_end', 'location_species_id', 'species_priority', 'species_name',
+    #     'population', 'sick', 'dead', 'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias',
+    #     'species_diagnosis_id', 'species_diagnosis_priority', 'speciesdx', 'causal', 'confirmed',
+    #     'number_tested', 'number_positive')

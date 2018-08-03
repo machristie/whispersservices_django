@@ -1307,15 +1307,23 @@ class EventSummaryViewSet(ReadOnlyHistoryViewSet):
         return queryset
 
 
+class CSVEventDetailRenderer(csv_renderers.CSVRenderer):
+    header = ['event_id', 'event_reference', 'event_type_name', 'complete', 'event_start_date', 'event_end_date',
+              'affected_count', 'location_id', 'location_priority', 'county', 'state', 'nation', 'location_start',
+              'location_end', 'location_species_id', 'species_priority', 'species_name', 'population', 'sick', 'dead',
+              'estimated_sick', 'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
+              'species_diagnosis_priority', 'speciesdx', 'cause_name', 'number_tested', 'number_positive']
+
+
 class EventDetailViewSet(ReadOnlyHistoryViewSet):
-    permission_classes = (DRYPermissions,)
+    # permission_classes = (DRYPermissions,)
     # queryset = Event.objects.all()
 
     # override the default renderers to use a csv or xslx renderer when requested
     def get_renderers(self):
         frmt = self.request.query_params.get('format', None)
         if frmt is not None and frmt == 'csv':
-            renderer_classes = (csv_renderers.CSVRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+            renderer_classes = (CSVEventDetailRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
         elif frmt is not None and frmt == 'xlsx':
             renderer_classes = (xlsx_renderers.XLSXRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
         else:
@@ -1363,36 +1371,43 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                         charval = Value('', output_field=CharField())
                         boolval = Value(False, output_field=BooleanField())
                         intval = Value(None, output_field=IntegerField())
-                        fields = ['event_id', 'event_reference', 'event_type', 'complete', 'organization', 'event_start_date',
-                                  'event_end_date', 'affected_count', 'event_diagnosis', 'location_id', 'location_priority',
-                                  'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id',
-                                  'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick',
-                                  'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
-                                  'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested',
-                                  'number_positive']
-                        fields_string = ','.join(fields)
                         # if the event has no event_locations, just return the event itself
-                        if obj.eventlocations is None:
+                        event_locations_count = EventLocation.objects.filter(event=obj.id).count()
+                        if event_locations_count == 0:
                             return queryset.annotate(
-                                event_id=F('id'), event_type=F('event_type__name'), # organization=F('organizations'), event_diagnosis=F('eventdiagnoses'),
-                                location_id=intval, location_priority=intval, county=charval, state=charval, nation=charval,
-                                location_start=charval, location_end=charval, location_species_id=intval, species_priority=intval,
-                                species_name=charval, population=intval, sick=intval, dead=intval, estimated_sick=intval,
-                                estimated_dead=intval, captive=boolval, age_bias=charval, sex_bias=charval, species_diagnosis_id=intval,
-                                species_diagnosis_priority=intval, speciesdx=charval, causal=charval, number_tested=intval,
-                                number_positive=intval).values('event_id', 'event_reference', 'event_type', 'complete', 'event_start_date',
-                                  'event_end_date', 'affected_count', 'location_id', 'location_priority',
-                                  'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id',
-                                  'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick',
-                                  'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
-                                  'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested',
-                                  'number_positive')
+                                event_id=F('id'), event_type_name=F('event_type__name'),
+                                # organization=F('organizations'), event_diagnosis=F('eventdiagnoses'),
+                                event_start_date=F('start_date'), event_end_date=F('end_date'),
+                                location_id=intval, location_priority=intval, county=charval, state=charval,
+                                nation=charval,
+                                location_start=charval, location_end=charval, location_species_id=intval,
+                                species_priority=intval,
+                                species_name=charval, population=intval, sick=intval, dead=intval,
+                                estimated_sick=intval,
+                                estimated_dead=intval, captive=boolval, age_bias=charval, sex_bias=charval,
+                                species_diagnosis_id=intval,
+                                species_diagnosis_priority=intval, speciesdx=charval, cause_name=charval,
+                                number_tested=intval,
+                                number_positive=intval).values('event_id', 'event_reference', 'event_type_name',
+                                                               'complete',
+                                                               'event_start_date',
+                                                               'event_end_date', 'affected_count', 'location_id',
+                                                               'location_priority',
+                                                               'county', 'state', 'nation', 'location_start',
+                                                               'location_end', 'location_species_id',
+                                                               'species_priority', 'species_name', 'population',
+                                                               'sick', 'dead', 'estimated_sick',
+                                                               'estimated_dead', 'captive', 'age_bias', 'sex_bias',
+                                                               'species_diagnosis_id',
+                                                               'species_diagnosis_priority', 'speciesdx', 'cause_name',
+                                                               'number_tested',
+                                                               'number_positive')
                         # otherwise build a union-ed, denormalized matrix
                         # get all specdiag
                         queryset1 = SpeciesDiagnosis.objects.annotate(
                             event_id=F('location_species__event_location__event__id'),
                             event_reference=F('location_species__event_location__event__event_reference'),
-                            event_type=F('location_species__event_location__event__event_type__name'),
+                            event_type_name=F('location_species__event_location__event__event_type__name'),
                             complete=F('location_species__event_location__event__complete'),
                             # organization=F('location_species__event_location__event__organizations'),
                             event_start_date=F('location_species__event_location__event__start_date'),
@@ -1416,20 +1431,27 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                             captive=F('location_species__captive'), age_bias=F('location_species__age_bias__name'),
                             sex_bias=F('location_species__sex_bias__name'), species_diagnosis_id=F('id'),
                             species_diagnosis_priority=F('priority'), speciesdx=F('diagnosis__name'),
-                            causal=F('cause__name'), number_tested=F('tested_count'),
+                            cause_name=F('cause__name'), number_tested=F('tested_count'),
                             number_positive=F('positive_count')).filter(
-                            location_species__event_location__event=obj.id).values('event_id', 'event_reference', 'event_type', 'complete', 'event_start_date',
-                                  'event_end_date', 'affected_count', 'location_id', 'location_priority',
-                                  'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id',
-                                  'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick',
-                                  'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
-                                  'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested',
-                                  'number_positive')
+                            location_species__event_location__event=obj.id).values('event_id', 'event_reference', 'event_type_name',
+                                                               'complete',
+                                                               'event_start_date',
+                                                               'event_end_date', 'affected_count', 'location_id',
+                                                               'location_priority',
+                                                               'county', 'state', 'nation', 'location_start',
+                                                               'location_end', 'location_species_id',
+                                                               'species_priority', 'species_name', 'population',
+                                                               'sick', 'dead', 'estimated_sick',
+                                                               'estimated_dead', 'captive', 'age_bias', 'sex_bias',
+                                                               'species_diagnosis_id',
+                                                               'species_diagnosis_priority', 'speciesdx', 'cause_name',
+                                                               'number_tested',
+                                                               'number_positive')
                         # get all locspec with no specdiag
                         queryset2 = LocationSpecies.objects.annotate(
                             specdiag_count=Count('speciesdiagnoses'), event_id=F('event_location__event__id'),
                             event_reference=F('event_location__event__event_reference'),
-                            event_type=F('event_location__event__event_type__name'),
+                            event_type_name=F('event_location__event__event_type__name'),
                             complete=F('event_location__event__complete'),
                             # organization=F('event_location__event__organizations'),
                             event_start_date=F('event_location__event__start_date'),
@@ -1444,18 +1466,18 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                             species_name=F('species__name'), population=F('population_count'), sick=F('sick_count'),
                             dead=F('dead_count'), estimated_sick=F('sick_count_estimated'),
                             estimated_dead=F('dead_count_estimated'), species_diagnosis_id=intval,
-                            species_diagnosis_priority=intval, speciesdx=charval, causal=charval, number_tested=intval,
-                            number_positive=intval).filter(event_location__event=obj.id, specdiag_count=0).values('event_id', 'event_reference', 'event_type', 'complete', 'event_start_date',
+                            species_diagnosis_priority=intval, speciesdx=charval, cause_name=charval, number_tested=intval,
+                            number_positive=intval).filter(event_location__event=obj.id, specdiag_count=0).values('event_id', 'event_reference', 'event_type_name', 'complete', 'event_start_date',
                                   'event_end_date', 'affected_count', 'location_id', 'location_priority',
                                   'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id',
                                   'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick',
                                   'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
-                                  'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested',
+                                  'species_diagnosis_priority', 'speciesdx', 'cause_name', 'number_tested',
                                   'number_positive')
                         # get all evtloc with no locspec
                         queryset3 = EventLocation.objects.annotate(
                             locspec_count=Count('locationspecies'), event_id=F('event__id'),
-                            event_reference=F('event__event_reference'), event_type=F('event__event_type__name'),
+                            event_reference=F('event__event_reference'), event_type_name=F('event__event_type__name'),
                             complete=F('event__complete'), # organization=F('event__organizations'),
                             event_start_date=F('event__start_date'), event_end_date=F('event__end_date'),
                             affected_count=F('event__affected_count'), # event_diagnosis=F('event__eventdiagnoses'),
@@ -1464,13 +1486,13 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                             location_end=F('end_date'), location_species_id=intval, species_priority=intval, species_name=charval,
                             population=intval, sick=intval, dead=intval, estimated_sick=intval, estimated_dead=intval, captive=boolval,
                             age_bias=charval, sex_bias=charval, species_diagnosis_id=intval, species_diagnosis_priority=intval,
-                            speciesdx=charval, causal=charval, number_tested=intval, number_positive=intval).filter(
-                            event=obj.id, locspec_count=0).values('event_id', 'event_reference', 'event_type', 'complete', 'event_start_date',
+                            speciesdx=charval, cause_name=charval, number_tested=intval, number_positive=intval).filter(
+                            event=obj.id, locspec_count=0).values('event_id', 'event_reference', 'event_type_name', 'complete', 'event_start_date',
                                   'event_end_date', 'affected_count', 'location_id', 'location_priority',
                                   'county', 'state', 'nation', 'location_start', 'location_end', 'location_species_id',
                                   'species_priority', 'species_name', 'population', 'sick', 'dead', 'estimated_sick',
                                   'estimated_dead', 'captive', 'age_bias', 'sex_bias', 'species_diagnosis_id',
-                                  'species_diagnosis_priority', 'speciesdx', 'causal', 'number_tested',
+                                  'species_diagnosis_priority', 'speciesdx', 'cause_name', 'number_tested',
                                   'number_positive')
                         if queryset1 is not None and queryset2 is not None and queryset3 is not None:
                             queryset = queryset1.union(queryset2, queryset3)
@@ -1485,8 +1507,7 @@ class EventDetailViewSet(ReadOnlyHistoryViewSet):
                         elif queryset1 is None and queryset2 is None and queryset3 is not None:
                             queryset = queryset3
                         else:
-                            queryset = Event.objects.none()
-                        return queryset
+                            return queryset2
                     else:
                         return queryset
             return queryset.filter(public=True)

@@ -114,7 +114,7 @@ class PermissionsNameModel(PermissionsHistoryModel):
 ######
 
 
-class Event(PermissionsHistoryModel):
+class Event(HistoryModel):
     """
     Event
     """
