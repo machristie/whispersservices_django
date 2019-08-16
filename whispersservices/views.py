@@ -162,23 +162,7 @@ class ReadOnlyHistoryViewSet(AuthLastLoginMixin, viewsets.ReadOnlyModelViewSet):
 
 class EventViewSet(HistoryViewSet):
     """
-    list:
-    Returns a list of all events.
-
-    create:
-    Creates a new event.
-    
-    read:
-    Returns an event by id.
-    
-    update:
-    Updates an event.
-    
-    partial_update:
-    Updates parts of an event.
-    
-    delete:
-    Deletes an event.
+    hi
     """
 
     # TODO: would this be true?
@@ -1640,7 +1624,7 @@ class UserViewSet(HistoryViewSet):
     Deletes an artifact.
     """
     serializer_class = UserSerializer
-
+    # filterset_class = UserFilter
     # anyone can request a new user, but an email address is required if the request comes from a non-user
     @action(detail=False, methods=['post'], parser_classes=(PlainTextParser,))
     def request_new(self, request):
@@ -2189,20 +2173,7 @@ class CSVEventSummaryPublicRenderer(csv_renderers.PaginatedCSVRenderer):
 
 class EventSummaryViewSet(ReadOnlyHistoryViewSet):
     """
-    list:
-    Returns a list of all event summaries.
-
-    get_count:
-    Returns a count of all event summaries.
     
-    get_user_events_count:
-    Returns a count of events created by a user.
-    
-    user_events:
-    Returns events create by a user.
-    
-    read:
-    Returns an event summary by id.
     """
 
     queryset = Event.objects.all()
