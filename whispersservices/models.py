@@ -672,8 +672,8 @@ class EventLocationFlyway(PermissionsHistoryModel):
     Table to allow many-to-many relationship between Event Locations and Flyways.
     """
 
-    event_location = models.ForeignKey('EventLocation', models.CASCADE)
-    flyway = models.ForeignKey('Flyway', models.CASCADE)
+    event_location = models.ForeignKey('EventLocation', models.CASCADE, help_text=eventlocation.event_location)
+    flyway = models.ForeignKey('Flyway', models.CASCADE, help_text=eventlocation.flyways)
 
     def __str__(self):
         return str(self.id)
@@ -1274,6 +1274,7 @@ class User(AbstractUser):
     organization = models.ForeignKey('Organization', models.PROTECT, null=True, related_name='users', help_text=users.organization)
     circles = models.ManyToManyField(
         'Circle', through='CircleUser', through_fields=('user', 'circle'), related_name='users', help_text=users.circles)
+    active_key = models.TextField(blank=True, default='', help_text=users.active_key)
     user_status = models.CharField(max_length=128, blank=True, default='', help_text=users.user_status)
 
     history = HistoricalRecords()

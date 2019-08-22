@@ -42,7 +42,7 @@ eventlocation = ModelFieldDescriptions({
     'priority': 'A many to many releationship of read collaborators based on a foreign key integer value indentifying a user',
     'land_ownership': 'A many to many releationship of write collaborators based on a foreign key integer value indentifying a user',
     'contacts': 'A foreign key integer identifying the user who last modified the object',
-    'flyways': 'A many to many releationship of organizations based on a foreign key integer value indentifying an organization',
+    'flyways': 'A many to many releationship of flyways based on a foreign key integer value indentifying a flyway',
     'gnis_name': 'An alphanumeric value of a gnis name',
     'gnis_id': 'A foreign key integer value identifying a gnis',
     'comments': 'A many to many releationship of comments based on a foreign key integer value indentifying a comment'
@@ -128,7 +128,7 @@ administratives = ModelFieldDescriptions({
 })
 
 speciesall = ModelFieldDescriptions({
-    'species': 'A foreign key integer value identifying a wildlife morbidity or mortality event',
+    'species': 'A foreign key integer value identifying a species',
     'population_count': 'An integer value indicating the population count',
     'sick_count': 'An integer value indicating the sick count',
     'sick_count_estimated': 'An integer value indicating the estimated sick count',
@@ -147,11 +147,7 @@ speciesall = ModelFieldDescriptions({
     'species_latin_name': 'An alphanumeric value of the latin name of this species',
     'subspecies_latin_name': 'An alphanumeric value of the latin name of this subspecies',
     'location_species': 'A foreign key integer value identifying a location species for this species diagnosis',
-    'tsn': 'An intger value identifying a TSN',
-    'tsn': 'An intger value identifying a TSN',
-    'tsn': 'An intger value identifying a TSN',
-    'tsn': 'An intger value identifying a TSN',
-    'tsn': 'An intger value identifying a TSN',
+    'tsn': 'An intger value identifying a TSN'
 })
 
 users = ModelFieldDescriptions({
@@ -159,7 +155,9 @@ users = ModelFieldDescriptions({
     'organization': 'A foreign key integer value identifying an organization assigned to a user',
     'circles': 'A many to many releationship of circles based on a foreign key integer value indentifying a circle',
     'active_key': 'An alphanumeric value of the active key for this user',
-    'user_status': 'An alphanumeric value of the status for this user'
+    'user_status': 'An alphanumeric value of the status for this user',
+    'username': 'An alphanumeric value of the username for a user',
+    'email': 'An alphanumeric value of the email for a user'
 })
 
 diagnoses = ModelFieldDescriptions({
@@ -226,3 +224,20 @@ search = ModelFieldDescriptions({
     'count': 'An integer value indentifying the count of searches',
 })
 
+queryparams = ModelFieldDescriptions({
+    'administrative_level_one': 'A foreign key integer value identifying an administrative level one',
+    'administrative_level_two': 'A foreign key integer value identifying an administrative level two',
+    'flyway': 'A foreign key integer value indentifying a flyway',
+    'country': 'A foreign key integer value identifying a country',
+    'gnis_id': 'A foreign key integer value identifying a gnis',
+    'diagnosis_type': 'A foreign key integer value identifying the diagnosis type',
+    'contains': 'An alphanumeric value of the contents of a comment',
+    'users': 'A foreign key value identifying users',
+    'contacts': 'A foreign key value identifying contacts',
+    'laboratory': 'A boolean value indicating if there is laboratory or not',
+    'ordering_param_contacts': 'Order by options include affiliation, created_by, created_by_id, created_date, email, event, eventcontact, eventlocationcontact, eventlocations, first_name, id, last_name, modified_by, modified_by_id, modified_date, organization, organization_id, phone, position, title',
+    'org': 'A alphanumeric value identifying an organization',
+    'owner_org': 'An alphanumeric value identifying an owner organization',
+    'ordering_param_search': 'Order by options include count, created_by, created_by_id, created_date, data, id, modified_by, modified_by_id, modified_date, name',
+    'owner': 'Order by oe',
+})
