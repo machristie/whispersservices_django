@@ -82,9 +82,12 @@ class OrganizationFilter(FilterSet):
         fields = ['users', 'contacts', 'laboratory']
 
 class SearchFilter(FilterSet):
-    ordering = CharFilter(field_name='ordering', lookup_expr='exact', label=queryparams.ordering_param_search)
-    #owner = NumberFilter(field_name='owner', lookup_expr='exact', label=queryparams.owner)
+    ordering = CharFilter(method='nonModelValue', lookup_expr='exact', label=queryparams.ordering_param_search)
+    owner = NumberFilter(method='nonModelValue', lookup_expr='exact', label=queryparams.owner)
+
+    def nonModelValue(self, queryset, value, *args):
+        return queryset
 
     class Meta:
         model = Search
-        fields = ['ordering']
+        fields = ['ordering', 'owner']

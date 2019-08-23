@@ -239,5 +239,6 @@ queryparams = ModelFieldDescriptions({
     'org': 'A alphanumeric value identifying an organization',
     'owner_org': 'An alphanumeric value identifying an owner organization',
     'ordering_param_search': 'Order by options include count, created_by, created_by_id, created_date, data, id, modified_by, modified_by_id, modified_date, name',
-    'owner': 'Order by oe',
+    'ordering_user_search': 'Order by options include count, created_by, created_by_id, created_date, data, id, modified_by, modified_by_id, modified_date, name',
+    'owner': 'A foreign key integer value identifying an owner',
 })

@@ -1910,14 +1910,7 @@ class CSVEventDetailRenderer(csv_renderers.CSVRenderer):
 
 class EventDetailViewSet(ReadOnlyHistoryViewSet):
     """
-    list:
-    Returns a list of all event details.
-    
-    read:
-    Returns an event detail.
-    
-    flat:
-    Returns a flattened response for an event detail by id.
+
     """
 
     @action(detail=True)
